@@ -225,7 +225,7 @@ void * stitch_thread(void* arg){
 }
 
 int main(int argc, const char * argv[]){
-    string in = "~/Google\ Drive/HUVRHomies/FirstSemester/4.Images/FirstBatch/Thermal/ATM.jpg";
+    string in = "ATM.jpg";
     Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(in);
     assert(image.get() != 0);
     image->readMetadata();
