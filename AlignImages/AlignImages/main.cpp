@@ -10,7 +10,6 @@
 #include <vector>
 #include <math.h>
 #include <cmath>
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -19,6 +18,9 @@
 #include "StitchQueue.h"
 #include <pthread.h>
 #include <semaphore.h>
+#include <iomanip>
+#include <cassert>
+
 
 
 using namespace std;
@@ -46,7 +48,7 @@ vector<Image*> load_images(string loc){
     ifstream source;
     vector<Image*> image_list;
     string name = "";
-    source.open(loc, ios_base::in);
+    source.open(loc.c_str(), ios_base::in);
     for(string line; getline(source, line);){
         istringstream in(line);
         float x;
@@ -167,7 +169,7 @@ void loadAndPairImages(){
     }
     cout<<output;
     cout<<"Final image count: "<<image_list.size()<<endl;
-    ofstream out_file (location +"data.stitch");
+    ofstream out_file (location + "data.stitch");
     if (out_file.is_open())
     {
         out_file << output;
@@ -223,7 +225,19 @@ void * stitch_thread(void* arg){
 }
 
 int main(int argc, const char * argv[]){
-    //loadAndPairImages();
+    string in = "~/Google\ Drive/HUVRHomies/FirstSemester/4.Images/FirstBatch/Thermal/ATM.jpg";
+    Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(in);
+    assert(image.get() != 0);
+    image->readMetadata();
+    
+    Exiv2::ExifData &exifData = image->exifData();
+    if (exifData.empty()) {
+        std::string error(in);
+        error += ": No Exif data found in the file";
+        throw Exiv2::Error(1, error);
+    }
+
+//    loadAndPairImages();
 //    for (int i = 0; i < stitch_queue.size(); i++){
 //        CURRENT_QUEUE = stitch_queue[i];
 //        pthread_t t1, t2, t3, t4;
