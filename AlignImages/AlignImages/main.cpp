@@ -236,6 +236,22 @@ int main(int argc, const char * argv[]){
         error += ": No Exif data found in the file";
         throw Exiv2::Error(1, error);
     }
+    Exiv2::ExifData::const_iterator end = exifData.end();
+    for (Exiv2::ExifData::const_iterator i = exifData.begin(); i != end; ++i) {
+        const char* tn = i->typeName();
+        std::cout << std::setw(44) << std::setfill(' ') << std::left
+        << i->key() << " "
+        << "0x" << std::setw(4) << std::setfill('0') << std::right
+        << std::hex << i->tag() << " "
+        << std::setw(9) << std::setfill(' ') << std::left
+        << (tn ? tn : "Unknown") << " "
+        << std::dec << std::setw(3)
+        << std::setfill(' ') << std::right
+        << i->count() << "  "
+        << std::dec << i->value()
+        << "\n";
+    }
+
 
 //    loadAndPairImages();
 //    for (int i = 0; i < stitch_queue.size(); i++){
@@ -256,3 +272,7 @@ int main(int argc, const char * argv[]){
 }
 
 
+
+
+g++ -Wall -pthread -std=c++11 -O2 -I. -c main.cpp -o main.o
+g++ -Wall -pthread -std=c++11 -O2 main.o -o HUVRStitch /usr/lib/libexiv2.so -lm -Wl,--rpath -Wl,/usr/local/lib
