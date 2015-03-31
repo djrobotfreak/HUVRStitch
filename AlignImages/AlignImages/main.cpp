@@ -46,7 +46,7 @@ vector<Image*> load_images(string loc){
     ifstream source;
     vector<Image*> image_list;
     string name = "";
-    source.open(loc, ios_base::in);
+    source.open(loc.c_str(), ios_base::in);
     for(string line; getline(source, line);){
         istringstream in(line);
         float x;
