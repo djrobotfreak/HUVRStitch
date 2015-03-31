@@ -270,9 +270,3 @@ int main(int argc, const char * argv[]){
     cout<<"TERMINATING PROGRAM!\n";
     return 0;
 }
-
-
-
-
-g++ -Wall -pthread -std=c++11 -O2 -I. -c main.cpp -o main.o
-g++ -Wall -pthread -std=c++11 -O2 main.o -o HUVRStitch /usr/lib/libexiv2.so -lm -Wl,--rpath -Wl,/usr/local/lib
