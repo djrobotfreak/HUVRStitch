@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6554608A1A93CC7800B7B862 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 655460891A93CC7800B7B862 /* main.cpp */; };
+		6597C3121ACB80400019C2D4 /* libexiv2.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6597C3111ACB80400019C2D4 /* libexiv2.13.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,7 @@
 		657377721AA76C9A0086A210 /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
 		657377731AA76CFB0086A210 /* Coord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Coord.h; sourceTree = "<group>"; };
 		657377741AA76E870086A210 /* StitchQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StitchQueue.h; sourceTree = "<group>"; };
+		6597C3111ACB80400019C2D4 /* libexiv2.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libexiv2.13.dylib; path = ../../../../../usr/local/Cellar/exiv2/0.24/lib/libexiv2.13.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6597C3121ACB80400019C2D4 /* libexiv2.13.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,6 +47,7 @@
 		6554607D1A93CC7800B7B862 = {
 			isa = PBXGroup;
 			children = (
+				6597C3111ACB80400019C2D4 /* libexiv2.13.dylib */,
 				655460881A93CC7800B7B862 /* AlignImages */,
 				655460871A93CC7800B7B862 /* Products */,
 			);
@@ -214,6 +218,10 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = /usr/local/Cellar/exiv2/0.24/include;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/exiv2/0.24/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -229,6 +237,10 @@
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/exiv2/0.24/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
