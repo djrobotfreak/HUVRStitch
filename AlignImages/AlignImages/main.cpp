@@ -20,10 +20,32 @@
 #include <semaphore.h>
 #include <iomanip>
 #include <cassert>
-
-
+#include <dirent.h>
 
 using namespace std;
+// --------------------------------------
+// ---------------Globals----------------
+// --------------------------------------
+
+
+StitchQueue* CURRENT_QUEUE;
+sem_t queue_lock;
+float WIDTH = 10;
+float HEIGHT = 8;
+float THRESHOLD = 5;
+double ANGLE_FROM_NORTH = 0;
+int curr_stitched_num = 0;
+int curr_initial_num = 0;
+vector<StitchQueue*> stitch_queue;
+vector<Image*> ALL_IMAGES;
+
+
+
+
+// --------------------------------------
+// -----------Helper Functions-----------
+// --------------------------------------
+
 
 template <typename T> string tostr(const T& t) {
     ostringstream os;
@@ -31,38 +53,96 @@ template <typename T> string tostr(const T& t) {
     return os.str();
 }
 
-StitchQueue* CURRENT_QUEUE;
-sem_t queue_lock;
-float WIDTH = 10;
-float HEIGHT = 8;
-float THRESHOLD = 5;
-int curr_num = 0;
-vector<StitchQueue*> stitch_queue;
-string generate_name(){
-    curr_num ++;
-    string name = "stitched_" + tostr(curr_num);
+double convert_degrees_to_double(double degrees, double minutes, double seconds, string reference){
+    cout.precision(7);
+    cout<<"Converting: "<<degrees<<" o, "<<minutes<<"', "<<seconds<<"\""<<endl;
+    cout<<" To: "<<degrees<<"+"<<(minutes/(60.0))<<"+"<<(seconds/(3600.0))<<endl;
+    cout<<degrees + (minutes/(60.0)) + (seconds/(3600.0))<<endl;
+    if (reference == "S" || reference == "W"){
+        return -(degrees + (minutes/(60.0)) + (seconds/(3600.0)));
+    }
+    return degrees + (minutes/(60.0)) + (seconds/(3600.0));
+}
+
+int get_dir (string dir, vector<string> &files){
+    DIR *dp;
+    struct dirent *dirp;
+    if((dp  = opendir(dir.c_str())) == NULL) {
+        cout << "Error(" << errno << ") opening " << dir << endl;
+        return errno;
+    }
+    while ((dirp = readdir(dp)) != NULL) {
+        files.push_back(string(dirp->d_name));
+    }
+    closedir(dp);
+    return 0;
+}
+
+string generate_name(bool initial){
+    if (initial){
+        string name = "initial_" + tostr(curr_initial_num);
+        curr_initial_num++;
+        return name;
+    }
+    curr_stitched_num ++;
+    string name = "stitched_" + tostr(curr_stitched_num);
     return name;
 }
-vector<Image*> ALL_IMAGES;
+
+// --------------------------------------
+// ------------Declarations--------------
+// --------------------------------------
+
+
+Image* add_image(string loc);
+
+// --------------------------------------
+// -----------Worker Functions-----------
+// --------------------------------------
+
+
 vector<Image*> load_images(string loc){
-    ifstream source;
     vector<Image*> image_list;
-    string name = "";
-    source.open(loc.c_str(), ios_base::in);
-    for(string line; getline(source, line);){
-        istringstream in(line);
-        float x;
-        float y;
-        string name;
-        in >> x;
-        in >> y;
-        in >> name;
-        Coord a = Coord(x, y, 180);
-        image_list.push_back(new Image(a, HEIGHT, WIDTH, name));
+    vector<string> files = vector<string>();
+    if (loc[loc.size()-1] != '/'){
+        loc = loc + '/';
+    }
+    get_dir(loc,files);
+    for (unsigned int i = 0;i < files.size();i++){
+        cout << files[i] << endl;
+        string full_handle = loc + files[i];
+        
+        if(files[i].substr(files[i].find_last_of(".") + 1) == "jpg") {
+            image_list.push_back(add_image(full_handle));
+        }
     }
     ALL_IMAGES = image_list;
     return image_list;
 }
+
+Image* add_image(string loc){
+    cout<<"Image location: "<<loc<<endl;
+    Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(loc);
+    assert(image.get() != 0);
+    image->readMetadata();
+    
+    Exiv2::ExifData &exifData = image->exifData();
+    if (exifData.empty()) {
+        std::string error(loc);
+        error += ": No Exif data found in the file";
+        throw Exiv2::Error(1, error);
+    }
+    Exiv2::ExifMetadata::iterator itL = exifData.findKey(Exiv2::ExifKey("Exif.GPSInfo.GPSLongitude"));
+    string ref = exifData["Exif.GPSInfo.GPSLongitudeRef"].value().toString();
+    float gpsLong =convert_degrees_to_double(itL->value().toFloat(0), itL->value().toFloat(1), itL->value().toFloat(2), ref);
+    itL = exifData.findKey(Exiv2::ExifKey("Exif.GPSInfo.GPSLatitude"));
+    ref =  exifData["Exif.GPSInfo.GPSLatitudeRef"].value().toString();
+    float gpsLat = convert_degrees_to_double(itL->value().toFloat(0), itL->value().toFloat(1), itL->value().toFloat(2),ref);
+    cout<<"Lat: "<<gpsLat<<" Long:"<<gpsLong<<endl;
+    Coord a = Coord(gpsLat, gpsLong, 180);
+    return new Image(a, HEIGHT, WIDTH, generate_name(true));
+}
+
 
 Image* stitch(Image* i1, Image* i2, int iter){
     string i1_name = i1->name;
@@ -84,7 +164,7 @@ Image* stitch(Image* i1, Image* i2, int iter){
     else{
         children.push_back(i2);
     }
-    Image* out = new Image(children,i1_name, i2_name, generate_name());
+    Image* out = new Image(children,i1_name, i2_name, generate_name(false));
     stitch_queue[iter]->add(out);
     ALL_IMAGES.push_back(out);
     return out;
@@ -116,8 +196,8 @@ vector<Image*> find_pairs(vector<Image*> list, int iter){
     return new_list;
 }
 
-void loadAndPairImages(){
-    vector<Image*> image_list = load_images("/Users/Derek/Dropbox/HUVRData/StitchingScript/inputGrid.txt");
+void load_and_pair_images(string loc){
+    vector<Image*> image_list = load_images(loc);
     string location = "/Users/Derek/Dropbox/HUVRData/StitchingScript/Photos/";
     vector<string> old_image_list;
     string output = location + "\n" + "BEGIN\n";
@@ -170,13 +250,11 @@ void loadAndPairImages(){
     cout<<output;
     cout<<"Final image count: "<<image_list.size()<<endl;
     ofstream out_file (location + "data.stitch");
-    if (out_file.is_open())
-    {
+    if (out_file.is_open()){
         out_file << output;
         out_file.close();
     }
-    else cout << "Unable to open file";
-
+    else cout << "Unable to open file\n";
 }
 
 void * stitch_thread(void* arg){
@@ -224,49 +302,33 @@ void * stitch_thread(void* arg){
     }
 }
 
+void config(const char* argv[]){
+    double alt = stod(argv[1]);
+    double angle = stod(argv[2]);
+    string cameraType = argv[3];
+    double area = 500;
+    if (cameraType == "SD"){
+        //compute image width and height here.
+    }
+    THRESHOLD = area / 10.0; // SET THIS ACCORDING TO 10% OF TOTAL AREA.
+}
+
+
 int main(int argc, const char * argv[]){
-    string in = "ATM.jpg";
-    Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(in);
-    assert(image.get() != 0);
-    image->readMetadata();
-    
-    Exiv2::ExifData &exifData = image->exifData();
-    if (exifData.empty()) {
-        std::string error(in);
-        error += ": No Exif data found in the file";
-        throw Exiv2::Error(1, error);
+    config(argv);
+    load_and_pair_images("/Users/Derek/Google\ Drive/HUVRHomies/FirstSemester/4.Images/FirstBatch/Thermal");
+    for (int i = 0; i < stitch_queue.size(); i++){
+        CURRENT_QUEUE = stitch_queue[i];
+        pthread_t t1, t2, t3, t4;
+        pthread_create( &t1, NULL, &stitch_thread, NULL);
+        pthread_create( &t2, NULL, &stitch_thread, NULL);
+        pthread_create( &t3, NULL, &stitch_thread, NULL);
+        pthread_create( &t4, NULL, &stitch_thread, NULL);
+        pthread_join( t1, NULL);
+        pthread_join( t2, NULL);
+        pthread_join( t3, NULL);
+        pthread_join( t4, NULL);
     }
-    Exiv2::ExifData::const_iterator end = exifData.end();
-    for (Exiv2::ExifData::const_iterator i = exifData.begin(); i != end; ++i) {
-        const char* tn = i->typeName();
-        std::cout << std::setw(44) << std::setfill(' ') << std::left
-        << i->key() << " "
-        << "0x" << std::setw(4) << std::setfill('0') << std::right
-        << std::hex << i->tag() << " "
-        << std::setw(9) << std::setfill(' ') << std::left
-        << (tn ? tn : "Unknown") << " "
-        << std::dec << std::setw(3)
-        << std::setfill(' ') << std::right
-        << i->count() << "  "
-        << std::dec << i->value()
-        << "\n";
-    }
-
-
-//    loadAndPairImages();
-//    for (int i = 0; i < stitch_queue.size(); i++){
-//        CURRENT_QUEUE = stitch_queue[i];
-//        pthread_t t1, t2, t3, t4;
-//        pthread_create( &t1, NULL, &stitch_thread, NULL);
-//        pthread_create( &t2, NULL, &stitch_thread, NULL);
-//        pthread_create( &t3, NULL, &stitch_thread, NULL);
-//        pthread_create( &t4, NULL, &stitch_thread, NULL);
-//        pthread_join( t1, NULL);
-//        pthread_join( t2, NULL);
-//        pthread_join( t3, NULL);
-//        pthread_join( t4, NULL);
-//
-//    }
     cout<<"TERMINATING PROGRAM!\n";
     return 0;
 }

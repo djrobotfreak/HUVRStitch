@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AlignImages/main.cpp"
-            timestampString = "449529906.129115"
+            timestampString = "449600981.985151"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "42"
-            endingLineNumber = "42"
-            landmarkName = "generate_name()"
+            startingLineNumber = "106"
+            endingLineNumber = "106"
+            landmarkName = "addImage(string loc)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
