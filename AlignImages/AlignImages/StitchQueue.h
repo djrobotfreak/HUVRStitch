@@ -3,13 +3,14 @@
 using namespace std;
 
 class StitchQueue{
-private:
+public:
     vector<Image*> images;
 public:
     void add(Image* image){
         images.push_back(image);
     }
     Image* take(){
+        cout<<images.size();
         if (images.size() == 0){
             return NULL;
         }

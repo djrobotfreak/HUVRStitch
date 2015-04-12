@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>9ED2B345-1912-415F-906F-7CAB6B1C241E</string>
 	<key>IDESourceControlProjectName</key>
-	<string>AlignImages</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>808A06C3A6CA8D80AB424A4A82AB63533A548A66</key>
 		<string>https://github.com/djrobotfreak/HUVRStitch.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>AlignImages/AlignImages.xcodeproj</string>
+	<string>AlignImages/AlignImages.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>808A06C3A6CA8D80AB424A4A82AB63533A548A66</key>

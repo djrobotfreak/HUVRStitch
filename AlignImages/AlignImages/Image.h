@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include "Coord.h"
+string TEMP_PATH_again = "/Users/Derek/GoogleDrive/HUVRHomies/SecondSemester/Derek_Folder/Salt_Flats/";
 using namespace std;
 
 class Image{
@@ -9,14 +10,15 @@ public:
     Coord coord;
     Coord tl;
     Coord br;
+    string loc;
     string name;
     string in_name_1;
     string in_name_2;
     Image* parent;
     vector<Image*> children;
-    Image(Coord _coord, float height, float width, string _name){
+    Image(Coord _coord, float height, float width, string _loc){
         coord = _coord;
-        name = _name;
+        loc = _loc;
         tl = Coord(_coord.x - width/2.0, _coord.y + height/2.0);
         br =Coord(_coord.x + width/2.0, _coord.y - height/2.0);
         is_parent = false;
@@ -24,9 +26,10 @@ public:
     Image(std::vector<Image*> _children, string _in1, string _in2, string _name){
         children = _children;
         is_parent = true;
-        name = _name;
         in_name_1 = _in1;
         in_name_2 = _in2;
+        loc = TEMP_PATH_again + _name + ".jpg";
+        name = _name;
     }
     float getIntersectionArea(Image* i){
         if (is_parent){
