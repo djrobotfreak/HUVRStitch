@@ -22,7 +22,7 @@
 #include <cassert>
 #include <dirent.h>
 #include <ctime>
-#include  <sys/types.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 
@@ -45,6 +45,7 @@ vector<StitchQueue*> stitch_queue;
 vector<Image*> ALL_IMAGES;
 string DIR_PATH;
 string TEMP_PATH;
+string FINAL_LOCATION;
 
 
 
@@ -258,7 +259,7 @@ void load_and_pair_images(string loc){
 }
 
 void stitch_thread(Image* image){
-        string path = "/Applications/Hugin.app/Contents/MacOS/";
+        string path = "";
         string name = image->name;
         string loc = image->loc;
         string pto_name = image->name + ".pto";
@@ -266,7 +267,7 @@ void stitch_thread(Image* image){
         string create_pto ="pto_gen -o " + pto_name + " -p 0 -f 10 " + image->in_name_1 + " " + image->in_name_2;
         cout<<create_pto<<endl;
         system((path + create_pto).c_str());
-        string sift = "/usr/local/Cellar/autopano-sift-c/2.5.1/bin/autopano-sift-c " + pto_name + " " + pto_name;
+        string sift = "autopano-sift-c/2.5.1/bin/autopano-sift-c " + pto_name + " " + pto_name;
         cout<<"\n\n\nABOUT TO CALL SIFT!\n\n\n";
         system((sift).c_str());
         string create_vars = "pto_var --opt y,p,r -o " + pto_name + " " + pto_name;
@@ -284,14 +285,6 @@ void stitch_thread(Image* image){
         system(move_and_convert.c_str());
         string remove = "rm " + TEMP_PATH + "*.pto";
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -355,6 +348,9 @@ void stitch_thread(Image* image){
 //}
 
 void config(const char* argv[]){
+    DIR_PATH = argv[1];
+    TEMP_PATH = argv[2];
+    FINAL_LOCATION = argv[3];
 //    double alt = stod(argv[1]);
 //    double angle = stod(argv[2]);
 //    string cameraType = argv[3];
@@ -370,7 +366,6 @@ int main(int argc, const char * argv[]){
     config(argv);
     time_t start,end;
     time (&start);
-
 
     DIR_PATH = "/Users/Derek/GoogleDrive/HUVRHomies/SecondSemester/Derek_Folder/Salt_Flats2/";
     TEMP_PATH = "/Users/Derek/GoogleDrive/HUVRHomies/SecondSemester/Derek_Folder/Salt_Flats/";
@@ -405,13 +400,13 @@ int main(int argc, const char * argv[]){
                 }
             }
         }
-        cout<<"Stitch Queue: "<<i<<endl;
-        CURRENT_QUEUE = stitch_queue[i];
-        pthread_t t1, t2, t3, t4;
-        pthread_create( &t1, NULL, &stitch_thread, NULL);
-        pthread_create( &t2, NULL, &stitch_thread, NULL);
-        pthread_create( &t3, NULL, &stitch_thread, NULL);
-        pthread_create( &t4, NULL, &stitch_thread, NULL);
+//        cout<<"Stitch Queue: "<<i<<endl;
+//        CURRENT_QUEUE = stitch_queue[i];
+//        pthread_t t1, t2, t3, t4;
+//        pthread_create( &t1, NULL, &stitch_thread, NULL);
+//        pthread_create( &t2, NULL, &stitch_thread, NULL);
+//        pthread_create( &t3, NULL, &stitch_thread, NULL);
+//        pthread_create( &t4, NULL, &stitch_thread, NULL);
 //        pthread_join( t1, NULL);
 //        pthread_join( t2, NULL);
 //        pthread_join( t3, NULL);
