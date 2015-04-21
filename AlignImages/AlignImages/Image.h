@@ -1,7 +1,7 @@
 #include <vector>
 #include <string>
 #include "Coord.h"
-string TEMP_PATH_again = "/Users/Derek/GoogleDrive/HUVRHomies/SecondSemester/Derek_Folder/Salt_Flats/";
+extern string TEMP_PATH;
 using namespace std;
 
 class Image{
@@ -28,7 +28,7 @@ public:
         is_parent = true;
         in_name_1 = _in1;
         in_name_2 = _in2;
-        loc = TEMP_PATH_again + _name + ".jpg";
+        loc = TEMP_PATH + _name + ".jpg";
         name = _name;
     }
     float getIntersectionArea(Image* i){
