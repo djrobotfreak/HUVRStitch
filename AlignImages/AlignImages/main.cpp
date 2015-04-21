@@ -200,9 +200,8 @@ vector<Image*> find_pairs(vector<Image*> list, int iter){
 
 void load_and_pair_images(string loc){
     vector<Image*> image_list = load_images(loc);
-    string location = "/Users/Derek/Dropbox/HUVRData/StitchingScript/Photos/";
     vector<string> old_image_list;
-    string output = location + "\n" + "BEGIN\n";
+    string output = "\nBEGIN\n";
     int iter = 0;
     while(image_list.size()> 1 || iter < 1){
         old_image_list.clear();
@@ -251,7 +250,7 @@ void load_and_pair_images(string loc){
     }
     cout<<output;
     cout<<"Final image count: "<<image_list.size()<<endl;
-    ofstream out_file (location + "data.stitch");
+    ofstream out_file (TEMP_PATH + "data.stitch");
     if (out_file.is_open()){
         out_file << output;
         out_file.close();
@@ -351,12 +350,22 @@ void stitch_thread(Image* image){
 void config(int argc, const char* argv[]){
     if (argc < 3){
         cout<<"Please input paths as arguments.\n"<<"DIR_PATH TEMP_PATH\n\n";
+        exit(1);
     }
     DIR_PATH = argv[1];
     TEMP_PATH = argv[2];
     FINAL_LOCATION = argv[2];
     if (argc >= 4){
         FINAL_LOCATION = argv[3];
+    }
+    if (DIR_PATH[DIR_PATH.size()-1] != '/'){
+        DIR_PATH = DIR_PATH + '/';
+    }
+    if (TEMP_PATH[TEMP_PATH.size()-1] != '/'){
+        TEMP_PATH = TEMP_PATH + '/';
+    }
+    if (FINAL_LOCATION[FINAL_LOCATION.size()-1] != '/'){
+        FINAL_LOCATION = FINAL_LOCATION + '/';
     }
 //    double alt = stod(argv[1]);
 //    double angle = stod(argv[2]);
@@ -373,9 +382,6 @@ int main(int argc, const char * argv[]){
     config(argc, argv);
     time_t start,end;
     time (&start);
-
-    DIR_PATH = "/Users/Derek/GoogleDrive/HUVRHomies/SecondSemester/Derek_Folder/Salt_Flats2/";
-    TEMP_PATH = "/Users/Derek/GoogleDrive/HUVRHomies/SecondSemester/Derek_Folder/Salt_Flats/";
     load_and_pair_images(DIR_PATH);
     
     CURRENT_QUEUE = stitch_queue[0];
