@@ -348,10 +348,16 @@ void stitch_thread(Image* image){
 //    }
 //}
 
-void config(const char* argv[]){
+void config(int argc, const char* argv[]){
+    if (argc < 3){
+        cout<<"Please input paths as arguments.\n"<<"DIR_PATH TEMP_PATH\n\n";
+    }
     DIR_PATH = argv[1];
     TEMP_PATH = argv[2];
-    FINAL_LOCATION = argv[3];
+    FINAL_LOCATION = argv[2];
+    if (argc >= 4){
+        FINAL_LOCATION = argv[3];
+    }
 //    double alt = stod(argv[1]);
 //    double angle = stod(argv[2]);
 //    string cameraType = argv[3];
@@ -364,7 +370,7 @@ void config(const char* argv[]){
 
 
 int main(int argc, const char * argv[]){
-    config(argv);
+    config(argc, argv);
     time_t start,end;
     time (&start);
 
