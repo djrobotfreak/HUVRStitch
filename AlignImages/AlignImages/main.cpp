@@ -281,7 +281,7 @@ void stitch_thread(Image* image){
         system((path + make).c_str());
         string run = "make -f " + pto_name + ".mk";
         system(run.c_str());
-        string move_and_convert = "sips -s format jpeg " + name + "_final.tif -o " + loc;
+        string move_and_convert = "convert " + name + "_final.tif " + loc + name + "_final.jpg";
         system(move_and_convert.c_str());
         string remove = "rm " + TEMP_PATH + "*.pto";
 }
