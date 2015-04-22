@@ -379,6 +379,8 @@ void config(int argc, const char* argv[]){
 
 
 int main(int argc, const char * argv[]){
+    cout<<getenv("PATH")<<endl;
+    cout<<getenv("$PATH")<<endl;
     config(argc, argv);
     time_t start,end;
     time (&start);
